@@ -59,15 +59,25 @@ developing a process, and it's helpful to document your steps as part of
 developing your own process.
 
 ## Your Notes Here
+    For all of the debuggings, I mainly referred to the errors that my rails server and browser console spat back at me.  I tried deleting a toy and saw the following errors:
 
-- Add a new toy when the toy form is submitted
+- Add a new toy when the toy form is submitted:
+    browser: 500 (Internal Server Error)
+    server console: NameError (uninitialized constant ToysController::Toys):
 
-  - How I debugged:
+    While the browser told me nothing, as 500 is a blanket error message that doesn't directly discern the issue, the puma console told all.  The #create method in the toys_controller was trying to call #create on a Toys class, rather than a Toy class.  Class names are always singular where as their tables are plural.
 
-- Update the number of likes for a toy
 
-  - How I debugged:
+- Update the number of likes for a toy:
+    browser: caught (in promise) SyntaxError: Unexpected end of JSON input
+    server console: 204 No Content
 
-- Donate a toy to Goodwill (and delete it from our database)
+    This told me something was wrong with toys_controller.rb file.  Upon inspection, the #update method did not render the updated json. Easy fix.
 
-  - How I debugged:
+
+- Donate a toy to Goodwill (and delete it from our database):
+
+    browser:  http://localhost:4000/toys/9 404 (Not Found)
+    server console: ActionController::RoutingError (No route matches [DELETE] "/toys/9"):
+
+    The first thing I checked was the ./config/routes.rb file.  I very quickly realized the issue, which was that the :destroy resource was not included in the permitted methods.  Pretty easy fix here.
